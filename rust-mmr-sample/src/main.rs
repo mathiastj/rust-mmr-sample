@@ -45,8 +45,11 @@ fn main() {
 
     for (i, mmr_entry) in mmr_history.iter().enumerate() {
         let mmr_to_pixel_bounds = mmr_entry - lower_y;
-        let mmr_in_pixel = bounds.0 * (bounds.1 - mmr_to_pixel_bounds as usize) + i;
-        pixels[mmr_in_pixel] = 0;
+        for n in 0..=mmr_to_pixel_bounds {
+            let mmr_in_pixel = bounds.0 * (bounds.1 - (n+1) as usize) + i;
+            println!("n: {}, pixel: {}, bounds: {}", n, mmr_in_pixel, mmr_to_pixel_bounds);
+            pixels[mmr_in_pixel] = 0;
+        }
     }
 
     write_image(&args[2], &pixels, bounds).expect("error writing PNG file");
