@@ -20,7 +20,7 @@ fn main() {
 
     assert!(mmr_history.len() != 0);
 
-    let padding = 10;
+    let padding = 0;
     let max = mmr_history.iter().max();
     let upper_y = match max {
         None => {
@@ -38,7 +38,7 @@ fn main() {
         Some(v) => v - padding
     };
 
-    let bounds = (mmr_history.len(), (upper_y-lower_y) as usize);
+    let bounds = (mmr_history.len(), (upper_y-lower_y+1) as usize);
     println!("{:?}", bounds);
 
     let mut pixels = vec![255; bounds.0 as usize * bounds.1];
