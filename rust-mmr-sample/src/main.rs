@@ -18,36 +18,38 @@ fn main() {
 
     let mmr_history = parse_mmr(file_contents);
 
-    // let bounds = parse_pair(&args[2], 'x')
-    //     .expect("error parsing image dimensions");
-    // let upper_left = parse_complex(&args[3])
-    //     .expect("error parsing upper left corner point");
-    // let lower_right = parse_complex(&args[4])
-    //     .expect("error parsing lower right corner point");
+    assert!(mmr_history.len() != 0);
 
-    // let mut pixels = vec![0; bounds.0 * bounds.1];
+    let padding = 10;
+    let max = mmr_history.iter().max();
+    let upper_y = match max {
+        None => {
+            println!("No max");
+            std::process::exit(1);
+        },
+        Some(v) => v + padding
+    };
+    let min = mmr_history.iter().min();
+    let lower_y = match min {
+        None => {
+            println!("No min");
+            std::process::exit(1);
+        },
+        Some(v) => v - padding
+    };
 
-    // // Scope of slicing up `pixels` into horizontal bands.
-    // {
-    //     let bands: Vec<(usize, &mut [u8])> = pixels
-    //         .chunks_mut(bounds.0)
-    //         .enumerate()
-    //         .collect();
+    let bounds = (mmr_history.len(), (upper_y-lower_y) as usize);
+    println!("{:?}", bounds);
 
-    //     bands.into_par_iter()
-    //         .weight_max()
-    //         .for_each(|(i, band)| {
-    //             let top = i;
-    //             let band_bounds = (bounds.0, 1);
-    //             let band_upper_left = pixel_to_point(bounds, (0, top),
-    //                                                  upper_left, lower_right);
-    //             let band_lower_right = pixel_to_point(bounds, (bounds.0, top + 1),
-    //                                                   upper_left, lower_right);
-    //             render(band, band_bounds, band_upper_left, band_lower_right);
-    //         });
-    // }
+    let mut pixels = vec![255; bounds.0 as usize * bounds.1];
 
-    // write_image(&args[1], &pixels, bounds).expect("error writing PNG file");
+    for (i, mmr_entry) in mmr_history.iter().enumerate() {
+        let mmr_to_pixel_bounds = mmr_entry - lower_y;
+        let mmr_in_pixel = bounds.0 * (bounds.1 - mmr_to_pixel_bounds as usize) + i;
+        pixels[mmr_in_pixel] = 0;
+    }
+
+    write_image(&args[2], &pixels, bounds).expect("error writing PNG file");
 }
 
 use image::ColorType;
