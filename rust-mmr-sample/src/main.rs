@@ -1,3 +1,4 @@
+use std::fs;
 use std::io::Write;
 
 fn main() {
@@ -43,14 +44,7 @@ fn main() {
 
     let mut pixels = vec![255; bounds.0 as usize * bounds.1];
 
-    for (i, mmr_entry) in mmr_history.iter().enumerate() {
-        let mmr_to_pixel_bounds = mmr_entry - lower_y;
-        for n in 0..=mmr_to_pixel_bounds {
-            let mmr_in_pixel = bounds.0 * (bounds.1 - (n+1) as usize) + i;
-            println!("n: {}, pixel: {}, bounds: {}", n, mmr_in_pixel, mmr_to_pixel_bounds);
-            pixels[mmr_in_pixel] = 0;
-        }
-    }
+    render(&mut *pixels, bounds, lower_y, mmr_history);
 
     write_image(&args[2], &pixels, bounds).expect("error writing PNG file");
 }
@@ -74,8 +68,7 @@ fn write_image(filename: &str, pixels: &[u8], bounds: (usize, usize))
     Ok(())
 }
 
-use std::fs;
-
+/// Read a file as a string
 fn read_file(filename: &str) -> Result<String, std::io::Error> {
     let contents = fs::read_to_string(filename);
 
@@ -105,4 +98,15 @@ fn parse_mmr(contents: String) -> Vec<isize> {
     };
     println!("{:?}",mmr_history);
     mmr_history
+}
+
+fn render(pixels: &mut [u8], bounds: (usize, usize), lower_y: isize, mmr_history: Vec<isize>) {
+    for (i, mmr_entry) in mmr_history.iter().enumerate() {
+        let mmr_to_pixel_bounds = mmr_entry - lower_y;
+        for n in 0..=mmr_to_pixel_bounds {
+            let mmr_in_pixel = bounds.0 * (bounds.1 - (n+1) as usize) + i;
+            println!("n: {}, pixel: {}, bounds: {}", n, mmr_in_pixel, mmr_to_pixel_bounds);
+            pixels[mmr_in_pixel] = 0;
+        }
+    }
 }
